@@ -1,36 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="2dp">
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/message_profile_image"
-        android:layout_width="50dp"
+        android:layout_width="40dp"
         android:layout_height="40dp"
         android:src="@drawable/profile"/>
+    <LinearLayout
+        android:id="@+id/receiver_linear_layout"
+        android:layout_toRightOf="@+id/message_profile_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/left_side_message">
+
     <TextView
         android:id="@+id/receiver_message_text"
+        android:layout_alignParentLeft="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="2dp"
-        android:layout_toRightOf="@+id/message_profile_image"
-        android:text="Receiver message"
-        android:background="@drawable/receiver_message_text_background"
-        android:padding="10dp"
-        android:textSize="14sp"
-        android:textColor="@android:color/holo_purple"/>
-    <TextView
-        android:id="@+id/sender_message_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_marginTop="2dp"
-        android:layout_toRightOf="@+id/receiver_message_text"
-        android:text="Sender message"
-        android:background="@drawable/sender_message_text_background"
-        android:padding="10dp"
-        android:textSize="14sp"
-        android:textColor="@android:color/primary_text_dark"/>
-    
+        android:maxLines="6"
+        android:ellipsize="end"
+        android:minEms="4"
+        android:textSize="20sp"
+        android:maxWidth="250dp"
+        android:paddingLeft="15dp"
+        android:layout_weight="1"
+        android:paddingRight="10dp"
+        android:text="His MEssage"/>
+        <TextView
+            android:id="@+id/receiver_time"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="time"
+            android:textSize="10sp"
+            android:textAlignment="viewEnd"
+            android:paddingRight="15dp"
+            android:gravity="end" />
+    </LinearLayout>
 
-</RelativeLayout>
+    <LinearLayout
+        android:id="@+id/sender_linear_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:orientation="vertical"
+        android:background="@drawable/right_side_message">
+
+
+        <TextView
+            android:id="@+id/sender_message_text"
+            android:layout_width="wrap_content"
+            android:maxWidth="250dp"
+            android:layout_height="wrap_content"
+            android:maxLines="6"
+            android:ellipsize="end"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:minEms="4"
+            android:gravity="start"
+            android:paddingLeft="10dp"
+            android:paddingRight="15dp"
+            android:text="His Message"
+            android:textAlignment="textStart"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/sender_time"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:gravity="end"
+            android:textAlignment="viewEnd"
+            android:paddingRight="20dp"
+            android:text="time"
+            android:textSize="10sp" />
+    </LinearLayout>
+
+   </RelativeLayout>

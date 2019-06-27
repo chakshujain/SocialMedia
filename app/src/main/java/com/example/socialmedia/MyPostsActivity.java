@@ -25,6 +25,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
@@ -42,24 +44,7 @@ public class MyPostsActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private String currentUserId;
     private RecyclerView myPostsList;
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        updateUserStatus("online");
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        updateUserStatus("online");
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        updateUserStatus("online");
-    }
+    private String model_profile_image,model_post_image;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,7 +88,7 @@ public class MyPostsActivity extends AppCompatActivity {
         FirebaseRecyclerOptions<Posts> options=new FirebaseRecyclerOptions.Builder<Posts>().setQuery(myposts,Posts.class).build();
         FirebaseRecyclerAdapter<Posts, MyPostsActivity.PostsViewHolder> firebaseRecyclerAdapter=new FirebaseRecyclerAdapter<Posts, MyPostsActivity.PostsViewHolder>(options) {
             @Override
-            protected void onBindViewHolder(@NonNull MyPostsActivity.PostsViewHolder holder, int position, @NonNull Posts model) {
+            protected void onBindViewHolder(@NonNull final MyPostsActivity.PostsViewHolder holder, int position, @NonNull Posts model) {
 
                 final String PostKey = getRef(position).getKey();
                 try {
@@ -111,8 +96,30 @@ public class MyPostsActivity extends AppCompatActivity {
                     holder.time.setText(" " + model.getTime());
                     holder.date.setText(" " + model.getDate());
                     holder.description.setText(model.getDescription());
-                    Picasso.get().load(model.getProfileimage()).into(holder.user_post_image);
-                    Picasso.get().load(model.getPostimage()).into(holder.postImage);
+                    model_profile_image = model.getProfileimage();
+                    model_post_image  = model.getPostimage();
+                    Picasso.get().load(model.getProfileimage()).networkPolicy(NetworkPolicy.OFFLINE).into(holder.user_post_image, new Callback() {
+                        @Override
+                        public void onSuccess() {
+
+                        }
+
+                        @Override
+                        public void onError(Exception e) {
+                            Picasso.get().load(model_profile_image).into(holder.user_post_image);
+                        }
+                    });
+                    Picasso.get().load(model.getPostimage()).networkPolicy(NetworkPolicy.OFFLINE).into(holder.postImage, new Callback() {
+                        @Override
+                        public void onSuccess() {
+
+                        }
+
+                        @Override
+                        public void onError(Exception e) {
+                            Picasso.get().load(model_post_image).into(holder.postImage);
+                        }
+                    });
                 }
                 catch (Exception e){
                     e.printStackTrace();

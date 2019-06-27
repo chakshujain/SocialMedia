@@ -41,23 +41,6 @@ public class FindFriendsActivity extends AppCompatActivity {
 
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        updateUserStatus("online");
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        updateUserStatus("online");
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        updateUserStatus("online");
-    }
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_find_friends);

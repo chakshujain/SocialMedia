@@ -22,6 +22,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ThrowOnExtraProperties;
 import com.google.firebase.database.ValueEventListener;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
@@ -39,24 +41,6 @@ public class OnCickPostActivity extends AppCompatActivity {
     private DatabaseReference ClickPostRef,UsersRef,deletedPostsCount;
     private FirebaseAuth mAuth;
     private long deleted_posts_count;
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        updateUserStatus("online");
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        updateUserStatus("online");
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        updateUserStatus("online");
-    }
 
 
     @Override
@@ -84,7 +68,17 @@ public class OnCickPostActivity extends AppCompatActivity {
                     image = dataSnapshot.child("postimage").getValue().toString();
                     database_user_id = dataSnapshot.child("uid").getValue().toString();
                     ClickPostDescription.setText(description);
-                    Picasso.get().load(image).into(ClickPostImage);
+                    Picasso.get().load(image).networkPolicy(NetworkPolicy.OFFLINE).into(ClickPostImage, new Callback() {
+                        @Override
+                        public void onSuccess() {
+
+                        }
+
+                        @Override
+                        public void onError(Exception e) {
+                            Picasso.get().load(image).into(ClickPostImage);
+                        }
+                    });
                     if(currentUserId.equals(database_user_id)){
                         EditPostButton.setVisibility(View.VISIBLE);
                         DeletePostButton.setVisibility(View.VISIBLE);

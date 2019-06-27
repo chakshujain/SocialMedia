@@ -2,7 +2,9 @@ package com.example.socialmedia;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -31,6 +33,8 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -52,26 +56,8 @@ public class PostActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private StorageReference PostsImagesReference;
     private long countPosts = 0;
-    private long deleted_posts_count = 0;
     private String saveCurrentDate,saveCurrentTime,postRandomName,downloadUrl, current_user_id;
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        updateUserStatus("online");
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        updateUserStatus("online");
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        updateUserStatus("online");
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,7 +71,6 @@ public class PostActivity extends AppCompatActivity {
         current_user_id = mAuth.getCurrentUser().getUid();
         UsersRef = FirebaseDatabase.getInstance().getReference().child("users");
         PostsRef = FirebaseDatabase.getInstance().getReference().child("Posts");
-        DeletePostCountRef = FirebaseDatabase.getInstance().getReference().child("Deleted Posts Count").child("value");
 
         SelectPostImage=(ImageButton) findViewById(R.id.select_post_image);
         UpdatePostButton=(Button) findViewById(R.id.update_post_button);
@@ -121,21 +106,6 @@ public class PostActivity extends AppCompatActivity {
         });
 
     }
-    public void updateUserStatus(String state){
-        String saveCurrentDate,saveCurrentTime;
-        Calendar calFordDate = Calendar.getInstance();
-        SimpleDateFormat currentDate = new SimpleDateFormat("dd-MMMM-yyyy");
-        saveCurrentDate = currentDate.format(calFordDate.getTime());
-
-        Calendar calFordTime = Calendar.getInstance();
-        SimpleDateFormat currentTime = new SimpleDateFormat("HH:mm:aa");
-        saveCurrentTime = currentTime.format(calFordTime.getTime());
-        Map currentStateMap = new HashMap();
-        currentStateMap.put("time",saveCurrentTime);
-        currentStateMap.put("date",saveCurrentDate);
-        currentStateMap.put("type",state);
-        UsersRef.child(current_user_id).child("userState").updateChildren(currentStateMap);
-    }
 
 
     private void ValidatePostInfo() {
@@ -165,12 +135,25 @@ public class PostActivity extends AppCompatActivity {
         saveCurrentDate = currentDate.format(calFordDate.getTime());
 
         Calendar calFordTime = Calendar.getInstance();
-        SimpleDateFormat currentTime = new SimpleDateFormat("HH:mm");
+        SimpleDateFormat currentTime = new SimpleDateFormat("HH:mm:ss");
         saveCurrentTime = currentTime.format(calFordTime.getTime());
 
         postRandomName = saveCurrentDate + saveCurrentTime;
+        Bitmap bmp = null;
+        try {
+            bmp = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        //here you can choose quality factor in third parameter(ex. i choosen 25)
+        bmp.compress(Bitmap.CompressFormat.JPEG, 25, baos);
+        byte[] fileInBytes = baos.toByteArray();
         final StorageReference filePath = PostsImagesReference.child("Post Images").child(imageUri.getLastPathSegment() + postRandomName + ".jpg");
-        filePath.putFile(imageUri).continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+        filePath.putBytes(fileInBytes).continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
             @Override
             public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
                 if (!task.isSuccessful()){
@@ -183,8 +166,6 @@ public class PostActivity extends AppCompatActivity {
             public void onComplete(@NonNull Task<Uri> task) {
                 if (task.isSuccessful()) {
                     Uri downUri = task.getResult();
-                    Toast.makeText(PostActivity.this, "Profile Image stored successfully to Firebase storage...", Toast.LENGTH_SHORT).show();
-
                     downloadUrl = downUri.toString();
 
                     SavingPostInformationToDatabase();
@@ -200,36 +181,22 @@ public class PostActivity extends AppCompatActivity {
     }
 
     private void SavingPostInformationToDatabase() {
-
-        DeletePostCountRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if(dataSnapshot.exists()) {
-                    deleted_posts_count = Long.parseLong(dataSnapshot.getValue().toString());
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-        PostsRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if(dataSnapshot.exists()){
-                    countPosts = dataSnapshot.getChildrenCount();
-                }
-                else{
-                    countPosts = 0;
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
+//        PostsRef.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                if(dataSnapshot.exists()){
+//                    countPosts = dataSnapshot.getChildrenCount();
+//                }
+//                else{
+//                    countPosts = 0;
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError databaseError) {
+//
+//            }
+//        });
 
         UsersRef.child(current_user_id).addValueEventListener(new ValueEventListener() {
             @Override
@@ -246,6 +213,7 @@ public class PostActivity extends AppCompatActivity {
                     postsMap.put("uid", current_user_id);
                     postsMap.put("date", saveCurrentDate);
                     postsMap.put("time", saveCurrentTime);
+                    postsMap.put("timeStamp",String.valueOf(System.currentTimeMillis()));
                     postsMap.put("description", Description);
                     postsMap.put("postimage", downloadUrl);
                     postsMap.put("profileimage", userProfileImage);
@@ -314,6 +282,7 @@ public class PostActivity extends AppCompatActivity {
     private void SendUserToMainActivity() {
         Intent mainIntent = new Intent(PostActivity.this, MainActivity.class);
         startActivity(mainIntent);
+        finish();
     }
 
 }

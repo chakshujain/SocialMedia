@@ -47,23 +47,6 @@ public class CommentsActivity extends AppCompatActivity {
     private String PostKey;
     private String CurrentUserId,saveCurrentDate,saveCurrentTime,postRandomName;
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        updateUserStatus("online");
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        updateUserStatus("online");
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        updateUserStatus("online");
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,22 +88,6 @@ public class CommentsActivity extends AppCompatActivity {
             }
         });
     }
-    public void updateUserStatus(String state){
-        String saveCurrentDate,saveCurrentTime;
-        Calendar calFordDate = Calendar.getInstance();
-        SimpleDateFormat currentDate = new SimpleDateFormat("dd-MMMM-yyyy");
-        saveCurrentDate = currentDate.format(calFordDate.getTime());
-
-        Calendar calFordTime = Calendar.getInstance();
-        SimpleDateFormat currentTime = new SimpleDateFormat("HH:mm:aa");
-        saveCurrentTime = currentTime.format(calFordTime.getTime());
-        Map currentStateMap = new HashMap();
-        currentStateMap.put("time",saveCurrentTime);
-        currentStateMap.put("date",saveCurrentDate);
-        currentStateMap.put("type",state);
-        UserRef.child(CurrentUserId).child("userState").updateChildren(currentStateMap);
-    }
-
     private void DisplayAllComments(){
         FirebaseRecyclerOptions<Comments> options=new FirebaseRecyclerOptions.Builder<Comments>().setQuery(CommentRef,Comments.class).build();
         FirebaseRecyclerAdapter<Comments,CommentsViewholder> firebaseRecyclerAdapter=new FirebaseRecyclerAdapter<Comments,CommentsViewholder>(options) {

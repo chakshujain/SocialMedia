@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="200dp"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="@drawable/nav_header_background"
+    android:background="@color/sender_colour"
     android:padding="15dp">
 
     <de.hdodenhof.circleimageview.CircleImageView
@@ -18,12 +18,14 @@
     <TextView
         android:id="@+id/nav_user_full_name"
         android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_below="@+id/nav_profile_image"
         android:layout_centerHorizontal="true"
-        android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
+        android:fontFamily="cursive"
         android:text="Username"
-        android:textColor="#FFFFFF"
-        android:textSize="18sp" />
+        android:textColor="@android:color/black"
+        android:textSize="18sp"
+        android:textStyle="bold" />
 
 </RelativeLayout>

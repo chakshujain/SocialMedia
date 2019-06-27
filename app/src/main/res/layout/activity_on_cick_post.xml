@@ -1,51 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".OnCickPostActivity"
-    android:orientation="vertical">
-    <ImageView
-        android:id="@+id/click_post_image"
+    android:background="@color/sender_colour">
+    <ScrollView
         android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+    <ImageView
+        android:layout_marginTop="10dp"
+        android:id="@+id/click_post_image"
+        android:layout_width="300dp"
         android:layout_height="300dp"
+        android:scaleType="fitCenter"
+        android:layout_centerHorizontal="true"
         android:src="@drawable/select_image"
-
         />
     <TextView
-        android:id="@+id/click_post_description"
         android:layout_marginTop="20dp"
-        android:layout_width="match_parent"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/click_post_description"
+        android:layout_below="@+id/click_post_image"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textAppearance="@color/cardview_light_background"
         android:text="Post Description"
         android:textSize="16sp"
-        android:background="@drawable/inputs"/>
+        android:paddingLeft="10dp" />
 
     <Button
+        android:layout_marginTop="40dp"
         android:id="@+id/edit_post_button"
-        android:layout_width="170dp"
+        android:layout_below="@+id/click_post_description"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="100dp"
-        android:layout_marginTop="150dp"
-        android:layout_marginRight="100dp"
+        android:layout_centerHorizontal="true"
         android:textSize="24sp"
-        android:text="Edit Post"
-        android:background="@drawable/buttons"
-
-        />
+        android:textColor="@color/cardview_light_background"
+        android:text="  Edit Post  "
+        android:textAllCaps="false"
+        android:background="@drawable/buttons" />
 
     <Button
         android:id="@+id/delete_post_button"
-        android:layout_width="220dp"
+        android:layout_below="@+id/edit_post_button"
+        android:layout_marginTop="15dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
-        android:layout_marginLeft="80dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginRight="80dp"
-        android:text="Delete Post"
+        android:layout_centerHorizontal="true"
+        android:text="  Delete Post  "
+        android:textColor="@color/cardview_light_background"
         android:textSize="24sp"
+        android:textAllCaps="false"
         android:background="@drawable/buttons"
         />
+        </RelativeLayout>
+    </ScrollView>
 
-</LinearLayout>
+</RelativeLayout>

@@ -10,7 +10,6 @@
         android:id="@+id/settings_toolbar"
         layout="@layout/app_bar_layout"></include>
 
-
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -22,24 +21,27 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/settings_profile_image"
                 android:layout_width="250dp"
                 android:layout_height="250dp"
                 android:layout_marginTop="10dp"
                 android:src="@drawable/profile"
-                android:layout_marginLeft="80dp"
-                android:layout_marginRight="80dp"
+               android:layout_centerHorizontal="true"
                 />
             <EditText
                 android:id="@+id/settings_status"
+                android:layout_below="@+id/settings_profile_image"
+                android:layout_centerHorizontal="true"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:background="@drawable/inputs"
                 android:hint="Profile Status"
-                android:layout_marginLeft="40dp"
-                android:layout_marginRight="40dp"
                 android:padding="20dp"
                 android:textSize="20sp"
                 android:textStyle="bold"
@@ -47,13 +49,13 @@
                 />
             <EditText
                 android:id="@+id/settings_username"
+                android:layout_below="@+id/settings_status"
+                android:layout_centerHorizontal="true"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:background="@drawable/inputs"
                 android:hint="Username"
-                android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
                 android:padding="20dp"
                 android:textSize="20sp"
                 android:textStyle="bold"
@@ -61,27 +63,26 @@
                 />
             <EditText
                 android:id="@+id/settings_profile_name"
+                android:layout_below="@+id/settings_username"
+                android:layout_centerHorizontal="true"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:background="@drawable/inputs"
                 android:hint="Profile Name"
-                android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
                 android:padding="20dp"
                 android:textSize="20sp"
                 android:textStyle="bold"
-                android:textColor="@android:color/black"
-                />
+                android:textColor="@android:color/black" />
             <EditText
                 android:id="@+id/settings_country"
+                android:layout_below="@+id/settings_profile_name"
+                android:layout_centerHorizontal="true"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:background="@drawable/inputs"
                 android:hint="Country"
-                android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
                 android:padding="20dp"
                 android:textSize="20sp"
                 android:textStyle="bold"
@@ -89,13 +90,13 @@
                 />
             <EditText
                 android:id="@+id/settings_dob"
+                android:layout_below="@+id/settings_country"
+                android:layout_centerHorizontal="true"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:background="@drawable/inputs"
                 android:hint="Date of Birth"
-                android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
                 android:padding="20dp"
                 android:textSize="20sp"
                 android:textStyle="bold"
@@ -103,13 +104,13 @@
                 />
             <EditText
                 android:id="@+id/settings_gender"
+                android:layout_below="@+id/settings_dob"
+                android:layout_centerHorizontal="true"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:background="@drawable/inputs"
                 android:hint="Gender"
-                android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
                 android:padding="20dp"
                 android:textSize="20sp"
                 android:textStyle="bold"
@@ -117,6 +118,8 @@
                 />
             <EditText
                 android:id="@+id/settings_relationship_status"
+                android:layout_below="@+id/settings_gender"
+                android:layout_centerHorizontal="true"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
@@ -131,6 +134,8 @@
                 />
             <Button
                 android:id="@+id/update_account_settings_button"
+                android:layout_below="@+id/settings_relationship_status"
+                android:layout_centerHorizontal="true"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
                 android:text="Update Account Settings"
@@ -139,6 +144,7 @@
                 android:background="@drawable/buttons"
                 android:textColor="@color/colorAccent"
                 />
+            </RelativeLayout>
         </LinearLayout>
 
 

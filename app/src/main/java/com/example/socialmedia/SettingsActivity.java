@@ -25,6 +25,8 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
@@ -50,23 +52,7 @@ public class SettingsActivity extends AppCompatActivity {
     private ProgressDialog loadingBar;
     Query postsupdate;
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        updateUserStatus("online");
-    }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        updateUserStatus("online");
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        updateUserStatus("online");
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,8 +94,18 @@ public class SettingsActivity extends AppCompatActivity {
                     String myStatus = dataSnapshot.child("status").getValue().toString();
                     String myFullname = dataSnapshot.child("fullname").getValue().toString();
                     if(dataSnapshot.hasChild("profileimage")) {
-                        String image = dataSnapshot.child("profileimage").getValue().toString();
-                        Picasso.get().load(image).placeholder(R.drawable.profile).into(userProfImage);
+                        final String image = dataSnapshot.child("profileimage").getValue().toString();
+                        Picasso.get().load(image).placeholder(R.drawable.profile).networkPolicy(NetworkPolicy.OFFLINE).into(userProfImage, new Callback() {
+                            @Override
+                            public void onSuccess() {
+
+                            }
+
+                            @Override
+                            public void onError(Exception e) {
+                                Picasso.get().load(image).placeholder(R.drawable.profile).into(userProfImage);
+                            }
+                        });
                     }
                     userName.setText(myUsername);
                     userCountry.setText(myCountry);

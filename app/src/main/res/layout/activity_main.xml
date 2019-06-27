@@ -10,39 +10,31 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="@color/sender_colour">
 
         <include
             android:id="@+id/main_page_toolbar"
             layout="@layout/app_bar_layout"></include>
 
-        <FrameLayout
-            android:id="@+id/main_container"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+        <android.support.design.widget.TabLayout
+            android:id="@+id/main_tabs"
             android:layout_below="@+id/main_page_toolbar"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentBottom="true"
-            android:layout_marginStart="0dp"
-            android:layout_marginLeft="0dp"
-            android:layout_marginTop="6dp"
-            android:layout_marginEnd="0dp"
-            android:layout_marginRight="0dp"
-            android:layout_marginBottom="0dp">
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/tab_color"></android.support.design.widget.TabLayout>
+        <android.support.v4.view.ViewPager
+            android:layout_below="@+id/main_tabs"
+            android:id="@+id/fragment_container"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+        </android.support.v4.view.ViewPager>
 
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/all_users_post_list"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-        </FrameLayout>
         <ImageButton
             android:id="@+id/add_new_post_button"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:layout_above="@+id/main_container"
+            android:layout_above="@+id/main_tabs"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
             android:src="@drawable/add_post_high"

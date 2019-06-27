@@ -1,13 +1,15 @@
 package com.example.socialmedia;
 
+
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.support.annotation.NonNull;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,27 +30,27 @@ import com.squareup.picasso.Callback;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
-
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class FriendsActivity extends AppCompatActivity {
+public class ChatsFragment extends Fragment {
     private RecyclerView FriendsList;
-    private DatabaseReference FriendsRef,UsersRef;
+    private DatabaseReference FriendsRef,UsersRef,MessagesRef;
     private FirebaseAuth mAuth;
     private String online_user_id;
 
 
+    public ChatsFragment() {
+        // Required empty public constructor
+    }
+
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_friends);
-        FriendsList = (RecyclerView)findViewById(R.id.friends_list);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.chats_fragment,null);
+        FriendsList = (RecyclerView)view.findViewById(R.id.fragment_messages_list);
         FriendsList.hasFixedSize();
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         linearLayoutManager.setReverseLayout(true);
         linearLayoutManager.setStackFromEnd(true);
         FriendsList.setLayoutManager(linearLayoutManager);
@@ -56,35 +58,50 @@ public class FriendsActivity extends AppCompatActivity {
         online_user_id = mAuth.getCurrentUser().getUid();
         FriendsRef = FirebaseDatabase.getInstance().getReference().child("Friends").child(online_user_id);
         UsersRef = FirebaseDatabase.getInstance().getReference().child("users");
+        MessagesRef = FirebaseDatabase.getInstance().getReference().child("Messages");
         DisplayAllFriends();
-
+        return view;
     }
 
-
     private void DisplayAllFriends() {
+        Query lastmessageposts = MessagesRef.child(online_user_id);
         FirebaseRecyclerOptions<Friends> options=new FirebaseRecyclerOptions.Builder<Friends>().
-                setQuery(FriendsRef, Friends.class).build(); //query build past the query to FirebaseRecyclerAdapter
-        FirebaseRecyclerAdapter<Friends, FriendsActivity.FriendsViewHolder> adapter=new FirebaseRecyclerAdapter<Friends, FriendsActivity.FriendsViewHolder>(options)
+                setQuery(lastmessageposts, Friends.class).build(); //query build past the query to FirebaseRecyclerAdapter
+        FirebaseRecyclerAdapter<Friends,FriendsViewHolder> adapter=new FirebaseRecyclerAdapter<Friends, FriendsViewHolder>(options)
         {
             @Override
-            protected void onBindViewHolder(@NonNull final FriendsActivity.FriendsViewHolder holder, final int position, @NonNull Friends model)
+            protected void onBindViewHolder(@NonNull final FriendsViewHolder holder, final int position, @NonNull Friends model)
             {
-                holder.date.setText("Friends since: " + model.getDate());
-
-
                 final String userIds = getRef(position).getKey();
+                Query lastMessageQuery = MessagesRef.child(online_user_id).child(userIds).orderByKey().limitToLast(1);
+                lastMessageQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        if(dataSnapshot.exists()) {
+                            for (DataSnapshot ds :dataSnapshot.getChildren()) {
+                                final String last_message = ds.child("message").getValue().toString();
+                                holder.date.setText(last_message);
+                            }
+
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+
                 UsersRef.child(userIds).addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        if(dataSnapshot.exists()){
+                        if (dataSnapshot.exists()) {
                             final String fullname = dataSnapshot.child("fullname").getValue().toString();
-                            final String type;
-                            if(dataSnapshot.hasChild("online")){
+                            if (dataSnapshot.hasChild("online")) {
                                 Boolean isOnline = Boolean.parseBoolean(dataSnapshot.child("online").getValue().toString());
-                                if(isOnline){
+                                if (isOnline) {
                                     holder.greenDot.setVisibility(View.VISIBLE);
-                                }
-                                else{
+                                } else {
                                     holder.greenDot.setVisibility(View.INVISIBLE);
                                 }
                             }
@@ -93,32 +110,15 @@ public class FriendsActivity extends AppCompatActivity {
                             holder.itemView.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
-                                    CharSequence options[] = new CharSequence[]{
-                                            "View" + fullname + "'s Profile",
-                                            "Send Message"
-                                    };
-                                    AlertDialog.Builder builder = new AlertDialog.Builder(FriendsActivity.this);
-                                    builder.setTitle("Select option");
-                                    builder.setItems(options, new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            if(which==0){
-                                                Intent personprofileIntent = new Intent(FriendsActivity.this,PersonProfieActivity.class);
-                                                personprofileIntent.putExtra("visitedUserId",userIds);
-                                                startActivity(personprofileIntent);
-                                            }
-                                            if(which==1){
-                                                Intent ChatIntent = new Intent(FriendsActivity.this,ChatActivity.class);
-                                                ChatIntent.putExtra("visitedUserId",userIds);
-                                                ChatIntent.putExtra("fullname",fullname);
-                                                startActivity(ChatIntent);
 
-                                            }
-                                        }
-                                    });
-                                    builder.show();
+                                    Intent ChatIntent = new Intent(getActivity(), ChatActivity.class);
+                                    ChatIntent.putExtra("visitedUserId", userIds);
+                                    ChatIntent.putExtra("fullname", fullname);
+                                    startActivity(ChatIntent);
                                 }
+
                             });
+
                             if(dataSnapshot.hasChild("profileimage")) {
                                 final String image = dataSnapshot.child("profileimage").getValue().toString();
                                 Picasso.get().load(image).placeholder(R.drawable.profile).networkPolicy(NetworkPolicy.OFFLINE).into(holder.profileimage, new Callback() {
@@ -143,14 +143,14 @@ public class FriendsActivity extends AppCompatActivity {
                     }
                 });
 
+
             }
             @NonNull
             @Override
-            public FriendsActivity.FriendsViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i)
+            public FriendsViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i)
             {
                 View view= LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.all_posts_display_layout,viewGroup,false);
-
-                FriendsActivity.FriendsViewHolder viewHolder=new FriendsActivity.FriendsViewHolder(view);
+                FriendsViewHolder viewHolder=new FriendsViewHolder(view);
                 return viewHolder;
             }
         };
@@ -175,3 +175,6 @@ public class FriendsActivity extends AppCompatActivity {
         }
     }
 }
+
+
+

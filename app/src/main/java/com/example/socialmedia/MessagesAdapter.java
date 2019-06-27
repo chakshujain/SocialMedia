@@ -8,6 +8,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,14 +35,20 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
     }
 
     public class MessageViewHolder extends RecyclerView.ViewHolder {
-        public TextView SenderMessageText,ReceiverMessageTxt;
+        public TextView SenderMessageText,ReceiverMessageTxt,senderTime,receiverTime;
         public CircleImageView receiverProfileImage;
+        public LinearLayout receiverLinearLayout;
+        public LinearLayout senderLinearLayout;
 
         public MessageViewHolder(@NonNull View itemView) {
             super(itemView);
             SenderMessageText = (TextView)itemView.findViewById(R.id.sender_message_text);
-            ReceiverMessageTxt = (TextView)itemView.findViewById(R.id.receiver_message_text);
+            ReceiverMessageTxt = (TextView) itemView.findViewById(R.id.receiver_message_text);
             receiverProfileImage = (CircleImageView)itemView.findViewById(R.id.message_profile_image);
+            receiverLinearLayout = (LinearLayout)itemView.findViewById(R.id.receiver_linear_layout);
+            senderLinearLayout = (LinearLayout)itemView.findViewById(R.id.sender_linear_layout);
+            senderTime = (TextView)itemView.findViewById(R.id.sender_time);
+            receiverTime = (TextView)itemView.findViewById(R.id.receiver_time);
         }
     }
 
@@ -60,45 +67,54 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
         Messages messages = userMessagesList.get(i);
         String fromUserId = messages.getFrom();
         String fromMessageType = messages.getType();
-        usersDatabaseRef = FirebaseDatabase.getInstance().getReference().child("users").child(fromUserId);
-        usersDatabaseRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if(dataSnapshot.exists()){
 
-                    if(dataSnapshot.hasChild("profileimage")){
-                        String image = dataSnapshot.child("profileimage").getValue().toString();
-                        Picasso.get().load(image).placeholder(R.drawable.profile).into(messageViewHolder.receiverProfileImage);
-                    }
-                }
-            }
+        messageViewHolder.receiverLinearLayout.setVisibility(View.VISIBLE);
+        messageViewHolder.senderLinearLayout.setVisibility(View.VISIBLE);
+        messageViewHolder.SenderMessageText.setVisibility(View.VISIBLE);
+        messageViewHolder.ReceiverMessageTxt.setVisibility(View.VISIBLE);
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
         if(fromMessageType.equals("text")){
-            messageViewHolder.ReceiverMessageTxt.setVisibility(View.INVISIBLE);
-            messageViewHolder.receiverProfileImage.setVisibility(View.INVISIBLE);
             if(fromUserId.equals(messageSenderId)){
-                messageViewHolder.SenderMessageText.setBackgroundResource(R.drawable.sender_message_text_background);
-                messageViewHolder.SenderMessageText.setTextColor(Color.WHITE);
-                messageViewHolder.SenderMessageText.setGravity(Gravity.LEFT);
+                messageViewHolder.ReceiverMessageTxt.setVisibility(View.INVISIBLE);
+                messageViewHolder.receiverProfileImage.setVisibility(View.INVISIBLE);
+                messageViewHolder.receiverLinearLayout.setVisibility(View.INVISIBLE);
+                messageViewHolder.senderTime.setText(messages.getTime());
+//                messageViewHolder.SenderMessageText.setBackgroundResource(R.drawable.receiver_message_text_background);
+                messageViewHolder.SenderMessageText.setTextColor(Color.BLACK);
+//                messageViewHolder.SenderMessageText.setGravity(Gravity.LEFT);
                 messageViewHolder.SenderMessageText.setText(messages.getMessage());
-
             }
             else{
+                usersDatabaseRef = FirebaseDatabase.getInstance().getReference().child("users").child(fromUserId);
+                usersDatabaseRef.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        if(dataSnapshot.exists()){
+
+                            if(dataSnapshot.hasChild("profileimage")){
+                                String image = dataSnapshot.child("profileimage").getValue().toString();
+                                Picasso.get().load(image).placeholder(R.drawable.profile).into(messageViewHolder.receiverProfileImage);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+                messageViewHolder.senderLinearLayout.setVisibility(View.INVISIBLE);
                 messageViewHolder.SenderMessageText.setVisibility(View.INVISIBLE);
+                messageViewHolder.receiverLinearLayout.setVisibility(View.VISIBLE);
                 messageViewHolder.ReceiverMessageTxt.setVisibility(View.VISIBLE);
                 messageViewHolder.receiverProfileImage.setVisibility(View.VISIBLE);
-                messageViewHolder.ReceiverMessageTxt.setBackgroundResource(R.drawable.receiver_message_text_background);
-                messageViewHolder.ReceiverMessageTxt.setTextColor(Color.WHITE);
-                messageViewHolder.ReceiverMessageTxt.setGravity(Gravity.LEFT);
+                messageViewHolder.receiverTime.setText(messages.getTime());
+//               messageViewHolder.ReceiverMessageTxt.setBackgroundResource(R.drawable.receiver_message_text_background);
+                messageViewHolder.ReceiverMessageTxt.setTextColor(Color.BLACK);
+//                messageViewHolder.ReceiverMessageTxt.setGravity(Gravity.RIGHT);
                 messageViewHolder.ReceiverMessageTxt.setText(messages.getMessage());
             }
         }
-
     }
 
     @Override

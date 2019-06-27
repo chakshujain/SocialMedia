@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,6 +20,7 @@ import android.widget.EditText;
 import android.support.v7.widget.Toolbar;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,6 +33,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import org.w3c.dom.Text;
@@ -40,12 +44,14 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class ChatActivity extends AppCompatActivity {
-    private Toolbar chatToolbar;
+    public static Context mContext;
+//    private Toolbar chatToolbar;
     private RecyclerView UserMessagesList;
     private List<Messages> messagesList = new ArrayList<>();
     private LinearLayoutManager linearLayoutManager;
@@ -60,35 +66,18 @@ public class ChatActivity extends AppCompatActivity {
     String messageSenderId,saveCurrentDate,saveCurrentTime;
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        updateUserStatus("online");
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        updateUserStatus("online");
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        updateUserStatus("online");
-    }
-
-    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
-        chatToolbar = (Toolbar)findViewById(R.id.chat_bar_layout);
-        setSupportActionBar(chatToolbar);
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setDisplayShowCustomEnabled(true);
-        LayoutInflater layoutInflater = (LayoutInflater)this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View action_bar_view = layoutInflater.inflate(R.layout.chat_custom_bar,null);
-        actionBar.setCustomView(action_bar_view);
+//        chatToolbar = (Toolbar)findViewById(R.id.chat_bar_layout);
+//        setSupportActionBar(chatToolbar);
+//        ActionBar actionBar = getSupportActionBar();
+//        actionBar.setDisplayHomeAsUpEnabled(true);
+//        actionBar.setDisplayShowCustomEnabled(true);
+//        LayoutInflater layoutInflater = (LayoutInflater)this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+//        View action_bar_view = layoutInflater.inflate(R.layout.chat_custom_bar,null);
+//        actionBar.setCustomView(action_bar_view);
+        mContext = ChatActivity.this;
         mAuth = FirebaseAuth.getInstance();
         RootRef = FirebaseDatabase.getInstance().getReference();
         UsersRef = FirebaseDatabase.getInstance().getReference().child("users");
@@ -113,16 +102,32 @@ public class ChatActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if(dataSnapshot.exists()){
                     if(dataSnapshot.hasChild("profileimage")){
-                        String image = dataSnapshot.child("profileimage").getValue().toString();
+                        final String image = dataSnapshot.child("profileimage").getValue().toString();
                         final String type = dataSnapshot.child("userState").child("type").getValue().toString();
                         final String lastDate = dataSnapshot.child("userState").child("date").getValue().toString();
+                        Boolean isOnline = Boolean.parseBoolean((dataSnapshot.child("online").getValue().toString()));
+                        Toast.makeText(ChatActivity.this, isOnline.toString(), Toast.LENGTH_SHORT).show();
+                        final Long last_seen = Long.parseLong(dataSnapshot.child("last_seen").getValue().toString());
                         final String lastTime = dataSnapshot.child("userState").child("time").getValue().toString();
-                        Picasso.get().load(image).placeholder(R.drawable.profile).into(receiverProfileImage);
-                        if(type.equals("online")){
-                            receiverLastSeen.setText("Onine");
+                        Picasso.get().load(image).placeholder(R.drawable.profile).networkPolicy(NetworkPolicy.OFFLINE).into(receiverProfileImage, new Callback() {
+                            @Override
+                            public void onSuccess() {
+
+                            }
+
+                            @Override
+                            public void onError(Exception e) {
+                                Picasso.get().load(image).placeholder(R.drawable.profile).into(receiverProfileImage);
+                            }
+                        });
+                        if(isOnline){
+                            receiverLastSeen.setText("Online");
                         }
                         else{
-                            receiverLastSeen.setText("Last seen: "+ lastTime + " " + lastDate);
+                            Calendar calendar = Calendar.getInstance(Locale.ENGLISH);
+                            calendar.setTimeInMillis(last_seen);
+                            String DateTime = DateFormat.format("dd/MM/yyyy  hh:mm aa", calendar).toString();
+                            receiverLastSeen.setText("Last seen at: "+DateTime);
                         }
                     }
                 }
@@ -137,25 +142,11 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 SendMessage();
+                UserMessagesList.scrollToPosition(messagesList.size()-1);
             }
         });
         FetchMessages();
-
-    }
-    public void updateUserStatus(String state){
-        String saveCurrentDate,saveCurrentTime;
-        Calendar calFordDate = Calendar.getInstance();
-        SimpleDateFormat currentDate = new SimpleDateFormat("dd-MMMM-yyyy");
-        saveCurrentDate = currentDate.format(calFordDate.getTime());
-
-        Calendar calFordTime = Calendar.getInstance();
-        SimpleDateFormat currentTime = new SimpleDateFormat("HH:mm:aa");
-        saveCurrentTime = currentTime.format(calFordTime.getTime());
-        Map currentStateMap = new HashMap();
-        currentStateMap.put("time",saveCurrentTime);
-        currentStateMap.put("date",saveCurrentDate);
-        currentStateMap.put("type",state);
-        UsersRef.child(messageSenderId).child("userState").updateChildren(currentStateMap);
+//        mScrollView.fullScroll(ScrollView.FOCUS_DOWN);
     }
 
     private void FetchMessages() {

@@ -39,6 +39,7 @@ public class ProfileActivity extends AppCompatActivity {
         updateUserStatus("online");
     }
 
+
     @Override
     protected void onStop() {
         super.onStop();
@@ -173,9 +174,11 @@ public class ProfileActivity extends AppCompatActivity {
     private void SendUserToMyPostsActivity(){
         Intent mypostsIntent = new Intent(ProfileActivity.this,MyPostsActivity.class);
         startActivity(mypostsIntent);
+        finish();
     }
     private void SendUserToFriendsActivity() {
         Intent friendsIntent = new Intent(ProfileActivity.this,FriendsActivity.class);
         startActivity(friendsIntent);
+        finish();
     }
 }

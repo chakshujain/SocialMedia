@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/colorAccent"
+    android:background="@color/cardview_light_background"
     android:orientation="horizontal">
 
     <de.hdodenhof.circleimageview.CircleImageView
@@ -25,7 +26,7 @@
             android:layout_marginTop="3dp"
             android:textAlignment="textStart"
             android:text="User Full name"
-            android:textColor="@android:color/holo_purple"
+            android:textColor="@android:color/black"
             android:textSize="18sp"
             android:textStyle="bold"
             android:gravity="start" />
@@ -36,8 +37,8 @@
             android:text="Status"
             android:textAlignment="textStart"
             android:layout_marginTop="8dp"
-
-            android:textColor="@android:color/holo_purple"
+            android:maxLines="1"
+            android:textColor="@android:color/black"
             android:textSize="15sp"
             android:textStyle="bold"
             android:gravity="start" />

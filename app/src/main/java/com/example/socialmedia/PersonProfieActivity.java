@@ -15,6 +15,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
@@ -27,7 +29,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class PersonProfieActivity extends AppCompatActivity {
     private TextView userName,userProfName,userStatus,userCountry,userGender,userRelation,userDOB;
     private CircleImageView userProfImage;
-    private DatabaseReference ProfileRef,FriendRequestsRef,FriendsRef;
+    private DatabaseReference ProfileRef,FriendRequestsRef,FriendsRef,NotificationsRef;
     private FirebaseAuth mAuth;
     String receiverUserId,senderUserId;
     String currentUserId,Current_state,saveCurrentDate;
@@ -71,6 +73,7 @@ public class PersonProfieActivity extends AppCompatActivity {
         receiverUserId = getIntent().getExtras().get("visitedUserId").toString();
         ProfileRef = FirebaseDatabase.getInstance().getReference().child("users");
         FriendsRef = FirebaseDatabase.getInstance().getReference().child("Friends");
+        NotificationsRef = FirebaseDatabase.getInstance().getReference().child("Notifications");
         FriendRequestsRef = FirebaseDatabase.getInstance().getReference().child("FriendRequests");
         DeclineFriendRequestButton.setVisibility(View.INVISIBLE);
         DeclineFriendRequestButton.setEnabled(false);
@@ -111,8 +114,18 @@ public class PersonProfieActivity extends AppCompatActivity {
                     String myStatus = dataSnapshot.child("status").getValue().toString();
                     String myFullname = dataSnapshot.child("fullname").getValue().toString();
                     if(dataSnapshot.hasChild("profileimage")) {
-                        String image = dataSnapshot.child("profileimage").getValue().toString();
-                        Picasso.get().load(image).placeholder(R.drawable.profile).into(userProfImage);
+                        final String image = dataSnapshot.child("profileimage").getValue().toString();
+                        Picasso.get().load(image).placeholder(R.drawable.profile).networkPolicy(NetworkPolicy.OFFLINE).into(userProfImage, new Callback() {
+                            @Override
+                            public void onSuccess() {
+
+                            }
+
+                            @Override
+                            public void onError(Exception e) {
+                                Picasso.get().load(image).placeholder(R.drawable.profile).into(userProfImage);
+                            }
+                        });
                     }
                     userName.setText(myUsername);
                     userCountry.setText("Country: " + myCountry);
@@ -244,7 +257,18 @@ public class PersonProfieActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()){
-                    FriendRequestsRef.child(receiverUserId).child(senderUserId).child("request_type").setValue("received");
+                    FriendRequestsRef.child(receiverUserId).child(senderUserId).child("request_type").setValue("received").addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if(task.isSuccessful()){
+                                HashMap<String,String>chatNotificationMap = new HashMap<>();
+                                chatNotificationMap.put("from",senderUserId);
+                                chatNotificationMap.put("type","request");
+                                NotificationsRef.child(receiverUserId).push().setValue(chatNotificationMap);
+                            }
+                        }
+                    });
+
 
                 }
             }
