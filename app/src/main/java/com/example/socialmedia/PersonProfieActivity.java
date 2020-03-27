@@ -29,29 +29,11 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class PersonProfieActivity extends AppCompatActivity {
     private TextView userName,userProfName,userStatus,userCountry,userGender,userRelation,userDOB;
     private CircleImageView userProfImage;
-    private DatabaseReference ProfileRef,FriendRequestsRef,FriendsRef,NotificationsRef;
+    private DatabaseReference ProfileRef,FriendRequestsRef,FriendsRef,NotificationsRef,MessagesRef;
     private FirebaseAuth mAuth;
     String receiverUserId,senderUserId;
     String currentUserId,Current_state,saveCurrentDate;
     private Button SendFriendRequestButton,DeclineFriendRequestButton;
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        updateUserStatus("online");
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        updateUserStatus("online");
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        updateUserStatus("online");
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +55,7 @@ public class PersonProfieActivity extends AppCompatActivity {
         receiverUserId = getIntent().getExtras().get("visitedUserId").toString();
         ProfileRef = FirebaseDatabase.getInstance().getReference().child("users");
         FriendsRef = FirebaseDatabase.getInstance().getReference().child("Friends");
+        MessagesRef = FirebaseDatabase.getInstance().getReference().child("Messages");
         NotificationsRef = FirebaseDatabase.getInstance().getReference().child("Notifications");
         FriendRequestsRef = FirebaseDatabase.getInstance().getReference().child("FriendRequests");
         DeclineFriendRequestButton.setVisibility(View.INVISIBLE);
@@ -149,22 +132,6 @@ public class PersonProfieActivity extends AppCompatActivity {
             }
         });
     }
-    public void updateUserStatus(String state){
-        String saveCurrentDate,saveCurrentTime;
-        Calendar calFordDate = Calendar.getInstance();
-        SimpleDateFormat currentDate = new SimpleDateFormat("dd-MMMM-yyyy");
-        saveCurrentDate = currentDate.format(calFordDate.getTime());
-
-        Calendar calFordTime = Calendar.getInstance();
-        SimpleDateFormat currentTime = new SimpleDateFormat("HH:mm:aa");
-        saveCurrentTime = currentTime.format(calFordTime.getTime());
-        Map currentStateMap = new HashMap();
-        currentStateMap.put("time",saveCurrentTime);
-        currentStateMap.put("date",saveCurrentDate);
-        currentStateMap.put("type",state);
-        ProfileRef.child(senderUserId).child("userState").updateChildren(currentStateMap);
-    }
-
 
     private void UnfriendExistingFriend() {
         FriendsRef.child(senderUserId).child(receiverUserId).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -174,17 +141,32 @@ public class PersonProfieActivity extends AppCompatActivity {
                     FriendsRef.child(receiverUserId).child(senderUserId).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
-                            SendFriendRequestButton.setEnabled(true);
-                            Current_state = "not_friends";
-                            SendFriendRequestButton.setText("Send Request");
-                            DeclineFriendRequestButton.setVisibility(View.INVISIBLE);
-                            DeclineFriendRequestButton.setEnabled(false);
+                            MessagesRef.child(senderUserId).child(receiverUserId).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if(task.isSuccessful()){
+                                        MessagesRef.child(receiverUserId).child(senderUserId).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                SendFriendRequestButton.setEnabled(true);
+                                                Current_state = "not_friends";
+                                                SendFriendRequestButton.setText("Send Request");
+                                                DeclineFriendRequestButton.setVisibility(View.INVISIBLE);
+                                                DeclineFriendRequestButton.setEnabled(false);
+                                            }
+                                        });
+
+                                    }
+                                }
+                            });
                         }
                     });
 
                 }
             }
         });
+
+
 
     }
 
@@ -214,22 +196,16 @@ public class PersonProfieActivity extends AppCompatActivity {
                                                 DeclineFriendRequestButton.setEnabled(false);
                                             }
                                         });
-
                                     }
                                 }
                             });
-
-
                         }
                     });
 
                 }
             }
         });
-
     }
-
-
     private void CancelFriendRequest() {
         FriendRequestsRef.child(senderUserId).child(receiverUserId).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
@@ -243,6 +219,7 @@ public class PersonProfieActivity extends AppCompatActivity {
                             SendFriendRequestButton.setText("Send Request");
                             DeclineFriendRequestButton.setVisibility(View.INVISIBLE);
                             DeclineFriendRequestButton.setEnabled(false);
+
                         }
                     });
 
@@ -265,11 +242,10 @@ public class PersonProfieActivity extends AppCompatActivity {
                                 chatNotificationMap.put("from",senderUserId);
                                 chatNotificationMap.put("type","request");
                                 NotificationsRef.child(receiverUserId).push().setValue(chatNotificationMap);
+
                             }
                         }
                     });
-
-
                 }
             }
         });

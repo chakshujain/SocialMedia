@@ -7,6 +7,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,8 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.support.v7.widget.Toolbar;
+
+import com.example.socialmedia.Models.Posts;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.auth.FirebaseAuth;
@@ -30,6 +33,7 @@ import com.squareup.picasso.Picasso;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 import android.support.v4.app.Fragment;
+import android.widget.Toast;
 
 public class AllPostsFragment extends Fragment {
     private NavigationView navigationView;
@@ -64,31 +68,28 @@ public class AllPostsFragment extends Fragment {
 
         DisplayAllUsersPosts();
 
-
         return view;
 
-
     }
-
-
 
     private void DisplayAllUsersPosts() {
         Query sortpostsindescendingorder = PostsRef.orderByChild("timeStamp");
         FirebaseRecyclerOptions<Posts> options=new FirebaseRecyclerOptions.Builder<Posts>().setQuery(sortpostsindescendingorder,Posts.class).build();
 
-        FirebaseRecyclerAdapter<Posts, PostsViewHolder> firebaseRecyclerAdapter=new FirebaseRecyclerAdapter<Posts, PostsViewHolder>(options) {
+        FirebaseRecyclerAdapter<Posts, PostsViewHolder> firebaseRecyclerAdapter = new FirebaseRecyclerAdapter<Posts, PostsViewHolder>(options) {
 
             @Override
             protected void onBindViewHolder(@NonNull final PostsViewHolder holder, int position, @NonNull Posts model) {
                 final String PostKey = getRef(position).getKey();
-                try {
                     holder.username.setText(model.getFullname());
                     holder.time.setText(" " + model.getTime());
                     holder.date.setText(" " + model.getDate());
                     holder.description.setText(model.getDescription());
-                    if(model.getProfileimage()!=null) {
-                        final String model_profile_image = model.getProfileimage();
-                        Picasso.get().load(model.getProfileimage()).networkPolicy(NetworkPolicy.OFFLINE).into(holder.user_post_image,new Callback() {
+                final String model_profile_image = model.getProfileimage();
+
+                if (!TextUtils.isEmpty(model_profile_image)) {
+                    try {
+                        Picasso.get().load(model_profile_image).placeholder(R.drawable.profile).networkPolicy(NetworkPolicy.OFFLINE).into(holder.user_post_image, new Callback() {
                             @Override
                             public void onSuccess() {
 
@@ -96,14 +97,19 @@ public class AllPostsFragment extends Fragment {
 
                             @Override
                             public void onError(Exception e) {
-                                Picasso.get().load(model_profile_image).into(holder.user_post_image);
+                                Picasso.get().load(model_profile_image).placeholder(R.drawable.profile).into(holder.user_post_image);
+
                             }
                         });
+                    } catch (Exception e) {
+                        Picasso.get().load(R.drawable.profile).into(holder.user_post_image);
                     }
-                    else{
-                        holder.user_post_image.setBackgroundResource(R.drawable.profile);
-                    }
-                    final String model_post_image = model.getPostimage();
+
+                } else {
+                    Picasso.get().load(R.drawable.profile).into(holder.user_post_image);
+                }
+
+                final String model_post_image = model.getPostimage();
 
                     Picasso.get().load(model.getPostimage()).networkPolicy(NetworkPolicy.OFFLINE).into(holder.postImage, new Callback() {
                         @Override
@@ -116,10 +122,7 @@ public class AllPostsFragment extends Fragment {
                             Picasso.get().load(model_post_image).into(holder.postImage);
                         }
                     });
-                }
-                catch (Exception e){
-                    e.printStackTrace();
-                }
+
                 holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {

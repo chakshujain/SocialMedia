@@ -6,4 +6,5 @@
     <color name="sender_colour">#F5FFFA</color>
     <color name="toolbar">#6A5ACD</color>
     <color name="tab_color">#F0FFFF</color>
+    <color name="button_color">#008080</color>
 </resources>

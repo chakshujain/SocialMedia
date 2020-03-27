@@ -8,9 +8,12 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -18,12 +21,16 @@ import android.widget.TextView;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,11 +40,12 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class FindFriendsActivity extends AppCompatActivity {
     private Toolbar mtoolbar;
     private FirebaseAuth mAuth;
-    private TextView SearchInputText;
+    private AutoCompleteTextView SearchInputText;
     private RecyclerView SearchResultList;
     private ImageButton SearchResultButton;
     private DatabaseReference UsersRef;
     private String currentUserId;
+    ArrayList userFullNames = new ArrayList();
 
 
     @Override
@@ -51,34 +59,40 @@ public class FindFriendsActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         currentUserId = mAuth.getCurrentUser().getUid();
         UsersRef = FirebaseDatabase.getInstance().getReference().child("users");
-        SearchInputText = (TextView)findViewById(R.id.search_edit_text);
+        SearchInputText = findViewById(R.id.search_edit_text);
         SearchResultButton = (ImageButton)findViewById(R.id.search_button);
         SearchResultList = (RecyclerView)findViewById(R.id.search_result_list);
         SearchResultList.hasFixedSize();
+        UsersRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for(DataSnapshot ds:dataSnapshot.getChildren()) {
+                    if (ds.hasChild("fullname"))
+                        userFullNames.add(ds.child("fullname").getValue().toString());
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+        Log.d("cp1",userFullNames.toString());
         SearchResultList.setLayoutManager(new LinearLayoutManager(this));
+
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_selectable_list_item,userFullNames);
+        SearchInputText.setAdapter(arrayAdapter);
+        SearchInputText.setThreshold(1);
         SearchResultButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 String SearchBoxInput = SearchInputText.getText().toString();
                 SearchFriends(SearchBoxInput);
             }
         });
 
-    }
-    public void updateUserStatus(String state){
-        String saveCurrentDate,saveCurrentTime;
-        Calendar calFordDate = Calendar.getInstance();
-        SimpleDateFormat currentDate = new SimpleDateFormat("dd-MMMM-yyyy");
-        saveCurrentDate = currentDate.format(calFordDate.getTime());
-
-        Calendar calFordTime = Calendar.getInstance();
-        SimpleDateFormat currentTime = new SimpleDateFormat("HH:mm:aa");
-        saveCurrentTime = currentTime.format(calFordTime.getTime());
-        Map currentStateMap = new HashMap();
-        currentStateMap.put("time",saveCurrentTime);
-        currentStateMap.put("date",saveCurrentDate);
-        currentStateMap.put("type",state);
-        UsersRef.child(currentUserId).child("userState").updateChildren(currentStateMap);
     }
 
     private void SearchFriends(String searchBoxInput)

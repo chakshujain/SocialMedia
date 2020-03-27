@@ -1,4 +1,4 @@
-package com.example.socialmedia;
+package com.example.socialmedia.Models;
 
 public class Comments {
     public String date,uid,time,comment,username;

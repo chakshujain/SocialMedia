@@ -1,4 +1,4 @@
-package com.example.socialmedia;
+package com.example.socialmedia.Models;
 
 public class Posts {
     public String uid,description,time,date,fullname,postimage,profileimage;

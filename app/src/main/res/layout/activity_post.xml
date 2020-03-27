@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/profile_background"
+    android:background="@color/tab_color"
     tools:context=".PostActivity">
     <include layout="@layout/app_bar_layout"
         android:id="@+id/update_post_page_toolbar"></include>
@@ -13,20 +13,20 @@
         android:layout_below="@+id/update_post_page_toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-    <LinearLayout
+    <RelativeLayout
         android:id="@+id/scrollable_linear_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
 
     <ImageButton
         android:id="@+id/select_post_image"
-        android:layout_below="@+id/update_post_page_toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="370dp"
+        android:layout_centerHorizontal="true"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
         android:layout_marginTop="10dp"
         android:scaleType="centerCrop"
-        android:src="@drawable/select_image"
+        android:src="@drawable/camera_vector"
+        android:background="@drawable/post_border"
         android:padding="10dp"
         />
 
@@ -43,6 +43,7 @@
         android:layout_marginTop="15dp"
         android:background="@drawable/inputs"
         android:hint="Write about your post here"
+        android:textColorHint="@color/button_color"
         android:padding="10dp"
         android:textSize="25sp"/>
 
@@ -53,13 +54,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="110dp"
-        android:layout_marginTop="15dp"
-        android:background="@drawable/buttons"
+        android:layout_marginTop="25dp"
+        android:background="@drawable/custom_buttons"
         android:text="Update Post"
-        android:textColor="@color/cardview_light_background"
+        android:textColor="@color/button_color"
         android:padding="10dp"
-        android:textSize="25sp" />
-    </LinearLayout>
+        android:textSize="25sp"
+        android:textAllCaps="false"
+        android:layout_marginBottom="15dp"/>
+    </RelativeLayout>
     </ScrollView>
 
 </RelativeLayout>

@@ -153,42 +153,26 @@ public class SettingsActivity extends AppCompatActivity {
         });
 
     }
-    public void updateUserStatus(String state){
-        String saveCurrentDate,saveCurrentTime;
-        Calendar calFordDate = Calendar.getInstance();
-        SimpleDateFormat currentDate = new SimpleDateFormat("dd-MMMM-yyyy");
-        saveCurrentDate = currentDate.format(calFordDate.getTime());
-
-        Calendar calFordTime = Calendar.getInstance();
-        SimpleDateFormat currentTime = new SimpleDateFormat("HH:mm:aa");
-        saveCurrentTime = currentTime.format(calFordTime.getTime());
-        Map currentStateMap = new HashMap();
-        currentStateMap.put("time",saveCurrentTime);
-        currentStateMap.put("date",saveCurrentDate);
-        currentStateMap.put("type",state);
-        UsersRef.child(currentUserId).child("userState").updateChildren(currentStateMap);
-    }
 
 //    StoringImageToFirebaseStorage();
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode==gallery_pick && resultCode==RESULT_OK && data!=null) {
-            CropImage.activity()
-                    .setGuidelines(CropImageView.Guidelines.ON)
-                    .setAspectRatio(1, 1)
-                    .start(this);
-        }
-            if(requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE)
-            {
+        if (resultCode == RESULT_OK) {
+            if (requestCode == gallery_pick && resultCode == RESULT_OK && data != null) {
+                CropImage.activity()
+                        .setGuidelines(CropImageView.Guidelines.ON)
+                        .setAspectRatio(1, 1)
+                        .start(this);
+            }
+            if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
                 CropImage.ActivityResult result = CropImage.getActivityResult(data);
                 imageUri = result.getUri();
-                if (resultCode == RESULT_OK) {
-                    userProfImage.setImageURI(imageUri);
-
-                }
+//            if (resultCode == RESULT_OK) {
+                userProfImage.setImageURI(imageUri);
+//            }
+            }
         }
     }
 
@@ -223,23 +207,6 @@ public class SettingsActivity extends AppCompatActivity {
                         if(downloadUrl!=null) {
                             usermap.put("profileimage", downloadUrl);
                         }
-//                        postsupdate.addListenerForSingleValueEvent(new ValueEventListener() {
-//                            @Override
-//                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//                                if(dataSnapshot.exists()){
-//                                    for(DataSnapshot child: dataSnapshot.getChildren()){
-//                                        String postkey = child.getRef().getKey();
-//                                        PostsUpdateRef.child(postkey).child("fullname").setValue(profilename);
-//                                        PostsUpdateRef.child(postkey).child("profileimage").setValue(downloadUrl);
-//                                    }
-//                                }
-//                            }
-//
-//                            @Override
-//                            public void onCancelled(@NonNull DatabaseError databaseError) {
-//
-//                            }
-//                        });
                         SettingsRef.updateChildren(usermap).addOnCompleteListener(new OnCompleteListener() {
                             @Override
                             public void onComplete(@NonNull Task task) {
@@ -264,22 +231,6 @@ public class SettingsActivity extends AppCompatActivity {
             });
         }
         else{
-//            postsupdate.addListenerForSingleValueEvent(new ValueEventListener() {
-//                @Override
-//                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//                    if(dataSnapshot.exists()){
-//                        for(DataSnapshot child: dataSnapshot.getChildren()){
-//                            String postkey = child.getRef().getKey();
-//                            PostsUpdateRef.child(postkey).child("fullname").setValue(profilename);
-//                        }
-//                    }
-//                }
-//
-//                @Override
-//                public void onCancelled(@NonNull DatabaseError databaseError) {
-//
-//                }
-//            });
                 SettingsRef.updateChildren(usermap).addOnCompleteListener(new OnCompleteListener() {
                 @Override
                 public void onComplete(@NonNull Task task) {

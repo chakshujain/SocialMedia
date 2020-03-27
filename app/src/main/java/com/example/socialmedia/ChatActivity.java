@@ -1,29 +1,23 @@
 package com.example.socialmedia;
 
 import android.content.Context;
-import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.EditText;
-import android.support.v7.widget.Toolbar;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+
+import com.example.socialmedia.Adapters.MessagesAdapter;
+import com.example.socialmedia.Models.Messages;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -36,8 +30,6 @@ import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
-
-import org.w3c.dom.Text;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -61,8 +53,10 @@ public class ChatActivity extends AppCompatActivity {
     private String messageReceiverId,messageReceiverFullName;
     private TextView receiverName,receiverLastSeen;
     private CircleImageView receiverProfileImage;
-    private DatabaseReference RootRef,UsersRef;
+    private DatabaseReference RootRef,UsersRef,NotificationsRef;
     private FirebaseAuth mAuth;
+
+
     String messageSenderId,saveCurrentDate,saveCurrentTime;
 
     @Override
@@ -81,6 +75,7 @@ public class ChatActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         RootRef = FirebaseDatabase.getInstance().getReference();
         UsersRef = FirebaseDatabase.getInstance().getReference().child("users");
+        NotificationsRef = FirebaseDatabase.getInstance().getReference().child("Notifications");
         messageSenderId = mAuth.getCurrentUser().getUid();
         UserMessagesList = (RecyclerView)findViewById(R.id.messages_list);
         InputMessage = (EditText)findViewById(R.id.input_message);
@@ -88,6 +83,7 @@ public class ChatActivity extends AppCompatActivity {
         SendMessageButton = (ImageButton)findViewById(R.id.send_message_button);
         messagesAdapter = new MessagesAdapter(messagesList);
         linearLayoutManager = new LinearLayoutManager(this);
+        linearLayoutManager.setStackFromEnd(true);
         UserMessagesList.hasFixedSize();
         UserMessagesList.setLayoutManager(linearLayoutManager);
         UserMessagesList.setAdapter(messagesAdapter);
@@ -103,12 +99,8 @@ public class ChatActivity extends AppCompatActivity {
                 if(dataSnapshot.exists()){
                     if(dataSnapshot.hasChild("profileimage")){
                         final String image = dataSnapshot.child("profileimage").getValue().toString();
-                        final String type = dataSnapshot.child("userState").child("type").getValue().toString();
-                        final String lastDate = dataSnapshot.child("userState").child("date").getValue().toString();
                         Boolean isOnline = Boolean.parseBoolean((dataSnapshot.child("online").getValue().toString()));
-                        Toast.makeText(ChatActivity.this, isOnline.toString(), Toast.LENGTH_SHORT).show();
                         final Long last_seen = Long.parseLong(dataSnapshot.child("last_seen").getValue().toString());
-                        final String lastTime = dataSnapshot.child("userState").child("time").getValue().toString();
                         Picasso.get().load(image).placeholder(R.drawable.profile).networkPolicy(NetworkPolicy.OFFLINE).into(receiverProfileImage, new Callback() {
                             @Override
                             public void onSuccess() {
@@ -142,11 +134,17 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 SendMessage();
-                UserMessagesList.scrollToPosition(messagesList.size()-1);
+                UserMessagesList.smoothScrollToPosition(messagesAdapter.getItemCount()+1);
+
             }
         });
         FetchMessages();
-//        mScrollView.fullScroll(ScrollView.FOCUS_DOWN);
+        messagesAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onItemRangeInserted(int positionStart, int itemCount) {
+                UserMessagesList.smoothScrollToPosition(messagesAdapter.getItemCount()-1);
+            }
+        });
     }
 
     private void FetchMessages() {
@@ -214,15 +212,20 @@ public class ChatActivity extends AppCompatActivity {
                 @Override
                 public void onComplete(@NonNull Task task) {
                     if(task.isSuccessful()){
-                        InputMessage.setText("");
+                        HashMap<String,String>chatNotificationMap = new HashMap<>();
+                        chatNotificationMap.put("from",messageSenderId);
+                        chatNotificationMap.put("type","message");
+                        NotificationsRef.child(messageReceiverId).push().setValue(chatNotificationMap);
+
                     }
                     else{
                         Toast.makeText(ChatActivity.this,task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                        InputMessage.setText("");
+
                     }
                 }
             });
 
         }
+        InputMessage.setText("");
     }
 }

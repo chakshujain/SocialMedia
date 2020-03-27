@@ -1,17 +1,16 @@
-package com.example.socialmedia;
+package com.example.socialmedia.Adapters;
 
 import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.example.socialmedia.Models.Messages;
+import com.example.socialmedia.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -28,7 +27,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
     private List<Messages> userMessagesList;
 
     private FirebaseAuth mAuth;
-    private DatabaseReference usersDatabaseRef;
+    private DatabaseReference usersDatabaseRef,NotificationsRef;
 
     public MessagesAdapter(List<Messages> userMessagesList) {
         this.userMessagesList = userMessagesList;
@@ -49,6 +48,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
             senderLinearLayout = (LinearLayout)itemView.findViewById(R.id.sender_linear_layout);
             senderTime = (TextView)itemView.findViewById(R.id.sender_time);
             receiverTime = (TextView)itemView.findViewById(R.id.receiver_time);
+
         }
     }
 
@@ -83,6 +83,8 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
                 messageViewHolder.SenderMessageText.setTextColor(Color.BLACK);
 //                messageViewHolder.SenderMessageText.setGravity(Gravity.LEFT);
                 messageViewHolder.SenderMessageText.setText(messages.getMessage());
+
+
             }
             else{
                 usersDatabaseRef = FirebaseDatabase.getInstance().getReference().child("users").child(fromUserId);
@@ -113,6 +115,8 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
                 messageViewHolder.ReceiverMessageTxt.setTextColor(Color.BLACK);
 //                messageViewHolder.ReceiverMessageTxt.setGravity(Gravity.RIGHT);
                 messageViewHolder.ReceiverMessageTxt.setText(messages.getMessage());
+
+
             }
         }
     }

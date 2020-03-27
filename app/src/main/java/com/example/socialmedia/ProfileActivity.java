@@ -126,7 +126,7 @@ public class ProfileActivity extends AppCompatActivity {
                     myPostsButton.setText(" My Posts" + "(" + postsCount + ") ");
                 }
                 else{
-                    myPostsButton.setText(" My Posts(0)");
+                    myPostsButton.setText(" My Posts(0)  ");
                 }
             }
 
@@ -143,7 +143,7 @@ public class ProfileActivity extends AppCompatActivity {
                     myFriendsButton.setText( " My Friends"+ "(" + friendsCount + ") " );
                 }
                 else{
-                    myFriendsButton.setText(" My Friends(0) " );
+                    myFriendsButton.setText(" My Friends(0)  ");
                 }
             }
 

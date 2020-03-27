@@ -125,8 +125,6 @@
                 android:layout_marginTop="10dp"
                 android:background="@drawable/inputs"
                 android:hint="Relationship Status"
-                android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
                 android:padding="20dp"
                 android:textSize="20sp"
                 android:textStyle="bold"
@@ -136,13 +134,16 @@
                 android:id="@+id/update_account_settings_button"
                 android:layout_below="@+id/settings_relationship_status"
                 android:layout_centerHorizontal="true"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="60dp"
                 android:text="Update Account Settings"
                 android:textStyle="bold"
                 android:textSize="20sp"
-                android:background="@drawable/buttons"
-                android:textColor="@color/colorAccent"
+                android:layout_marginTop="30dp"
+                android:layout_marginBottom="30dp"
+                android:textAllCaps="false"
+                android:background="@drawable/custom_buttons"
+                android:textColor="@color/button_color"
                 />
             </RelativeLayout>
         </LinearLayout>

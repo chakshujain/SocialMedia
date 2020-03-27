@@ -1,4 +1,4 @@
-package com.example.socialmedia;
+package com.example.socialmedia.Models;
 
 public class Messages {
     String date,from,message,type,time;

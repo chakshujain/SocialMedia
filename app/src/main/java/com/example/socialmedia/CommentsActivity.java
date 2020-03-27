@@ -1,23 +1,20 @@
 package com.example.socialmedia;
 
-import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.util.Log;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.socialmedia.Models.Comments;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -27,15 +24,12 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.Map;
-
-import de.hdodenhof.circleimageview.CircleImageView;
 
 public class CommentsActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
@@ -46,6 +40,7 @@ public class CommentsActivity extends AppCompatActivity {
     private RecyclerView CommentList;
     private String PostKey;
     private String CurrentUserId,saveCurrentDate,saveCurrentTime,postRandomName;
+    private int temp;
 
 
     @Override
@@ -57,6 +52,7 @@ public class CommentsActivity extends AppCompatActivity {
         CurrentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
         CommentList = (RecyclerView)findViewById(R.id.comment_list);
         CommentList.hasFixedSize();
+
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setReverseLayout(true);
         linearLayoutManager.setStackFromEnd(true);
@@ -89,6 +85,7 @@ public class CommentsActivity extends AppCompatActivity {
         });
     }
     private void DisplayAllComments(){
+//        Query orderedComments = CommentRef.orderByChild("timeStamp");
         FirebaseRecyclerOptions<Comments> options=new FirebaseRecyclerOptions.Builder<Comments>().setQuery(CommentRef,Comments.class).build();
         FirebaseRecyclerAdapter<Comments,CommentsViewholder> firebaseRecyclerAdapter=new FirebaseRecyclerAdapter<Comments,CommentsViewholder>(options) {
 
@@ -104,6 +101,12 @@ public class CommentsActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
 
+            }
+
+            @Override
+            public int getItemCount() {
+                temp  =  super.getItemCount();
+                return temp;
             }
 
             @NonNull
@@ -139,12 +142,13 @@ public class CommentsActivity extends AppCompatActivity {
             saveCurrentDate = currentDate.format(calFordDate.getTime());
 
             Calendar calFordTime = Calendar.getInstance();
-            SimpleDateFormat currentTime = new SimpleDateFormat("HH:mm");
+            SimpleDateFormat currentTime = new SimpleDateFormat("HH:mm:ss");
             saveCurrentTime = currentTime.format(calFordTime.getTime());
 
             postRandomName = CurrentUserId + saveCurrentDate + saveCurrentTime;
 
             HashMap commentMap = new HashMap();
+            commentMap.put("timeStamp",String.valueOf(System.currentTimeMillis()));
             commentMap.put("uid",CurrentUserId);
             commentMap.put("date",saveCurrentDate);
             commentMap.put("time",saveCurrentTime);

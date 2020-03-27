@@ -126,23 +126,23 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Send Request"
-                android:background="@color/tab_color"
+                android:background="@drawable/custom_buttons"
                 android:textStyle="bold"
                 android:layout_marginTop="20dp"
-                android:textColor="@android:color/black"
+                android:textColor="@color/button_color"
                 android:textSize="18sp"
                 />
             <Button
                 android:id="@+id/decline_request_button"
                 android:layout_below="@+id/send_request_button"
-                android:background="@color/tab_color"
+                android:background="@drawable/custom_buttons"
                 android:layout_centerHorizontal="true"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Decline Request"
                 android:layout_marginTop="20dp"
                 android:textStyle="bold"
-                android:textColor="@android:color/black"
+                android:textColor="@color/button_color"
                 android:textSize="18sp"
                 />
         </RelativeLayout>

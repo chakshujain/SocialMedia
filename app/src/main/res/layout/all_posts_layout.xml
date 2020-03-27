@@ -130,7 +130,7 @@
                 android:padding="15dp"
                 android:layout_centerVertical="true"
                 android:textStyle="bold"
-                android:textColor="@color/design_default_color_primary"
+                android:textColor="@color/button_color"
                 android:baselineAlignBottom="false"
                 />
             <ImageButton

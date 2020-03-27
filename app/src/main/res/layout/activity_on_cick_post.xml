@@ -41,10 +41,10 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:textSize="24sp"
-        android:textColor="@color/cardview_light_background"
+        android:textColor="@color/button_color"
         android:text="  Edit Post  "
         android:textAllCaps="false"
-        android:background="@drawable/buttons" />
+        android:background="@drawable/custom_buttons" />
 
     <Button
         android:id="@+id/delete_post_button"
@@ -54,10 +54,11 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:text="  Delete Post  "
-        android:textColor="@color/cardview_light_background"
+        android:textColor="@color/button_color"
         android:textSize="24sp"
         android:textAllCaps="false"
-        android:background="@drawable/buttons"
+        android:background="@drawable/custom_buttons"
+        android:layout_marginBottom="20dp"
         />
         </RelativeLayout>
     </ScrollView>
